@@ -1,0 +1,21 @@
+# jLLMDebateRoom Configuration Example
+# Against Agent Provider & Model
+against.provider=openrouter
+against.model=openrouter/free
+
+# For Agent Provider & Model
+for.provider=openrouter
+for.model=openrouter/free
+
+# Judge Agent Provider & Model
+judge.provider=openrouter
+judge.model=openrouter/free
+
+# Network Endpoints
+ollama.url=http://localhost:11434/api/chat
+openrouter.url=https://openrouter.ai/api/v1/chat/completions
+openrouter.api.key=
+
+# Debate Defaults
+rounds=3
+websearch.enabled=true

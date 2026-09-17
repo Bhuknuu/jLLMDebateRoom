@@ -1,2 +1,41 @@
-*.bat
-/*
+# Java class and build artifacts
+*.class
+out/
+bin/
+target/
+build/
+*.jar
+*.war
+*.ear
+
+# Environment and configuration secrets
+.env
+.env.*
+!.env.example
+config.properties
+!config.properties.example
+*api_key*
+*.key
+*.pem
+
+# Runtime logs and session artifacts
+*.log
+run.log
+last_statement.txt
+last_debate_session.txt
+sessions/
+
+# IDE and OS files
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+.settings/
+.project
+.classpath
+.DS_Store
+Thumbs.db
+*~
+*.swp
+*.swo
