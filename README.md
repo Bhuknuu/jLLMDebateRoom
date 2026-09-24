@@ -5,28 +5,76 @@ Multi-agent adversarial debate orchestrator built in standard Java (JDK 17+) wit
 ## System Architecture
 
 ```mermaid
-graph TD
-    UI[User Interface / Swing GUI] --> ORCH[Debate Orchestrator]
-    CLI[Offline CLI Runner] --> CLI_ORCH[CLI Orchestrator]
-    
-    ORCH --> STANCE[Stance Clarifier]
-    ORCH --> AGENT_CRITIC[Agent: Against / Critic]
-    ORCH --> AGENT_FOR[Agent: For / Defender]
-    ORCH --> AGENT_JUDGE[Agent: Judge]
-    
-    AGENT_CRITIC --> SEARCH[Web Search Engine]
-    AGENT_FOR --> SEARCH
-    
-    AGENT_CRITIC --> CLIENT[LLM Client Layer]
-    AGENT_FOR --> CLIENT
-    AGENT_JUDGE --> CLIENT
-    
-    CLIENT --> OPENROUTER[OpenRouter API]
-    CLIENT --> OLLAMA[Local Ollama Instance]
-    
-    ORCH --> SESSION[Debate Session Memory]
-    SESSION --> SCORE[Scoreboard & Round Evaluator]
-    SESSION --> EXPORT[Transcript & Session Exporter]
+flowchart TD
+
+%%{init: {'theme': 'dark','flowchart': {'curve': 'bumpY'}}}%%
+
+subgraph group_entry["Entry points"]
+  direction TD
+  node_swing["Swing interface<br/>[Courtroom.java]"]
+  node_cli["Console interface<br/>[CourtroomCLI.java]"]
+  node_gui_output["Rendered and saved result<br/>[Courtroom.java]"]
+end
+
+subgraph group_debate["Debate workflow"]
+  direction LR
+  node_orchestrator["Debate orchestrator<br/>[Courtroom.java]"]
+  node_cli_orchestrator["CLI orchestrator<br/>[CourtroomCLI.java]"]
+  node_stance["Stance clarifier<br/>[Courtroom.java]"]
+  node_critic["Against agent<br/>[Courtroom.java]"]
+  node_defender["For agent<br/>[Courtroom.java]"]
+  node_judge["Judge and evaluator<br/>[Courtroom.java]"]
+  node_cli_critic["CLI critic<br/>[CourtroomCLI.java]"]
+  node_cli_defender["CLI defender<br/>[CourtroomCLI.java]"]
+  node_cli_judge["CLI judge<br/>[CourtroomCLI.java]"]
+end
+
+subgraph group_services["Inference and evidence"]
+  direction LR
+  node_llm["LLM client layer<br/>[Courtroom.java]"]
+  node_cli_llm["CLI Ollama client<br/>[CourtroomCLI.java]"]
+  node_search["Web search<br/>[Courtroom.java]"]
+end
+
+subgraph group_state["Session and output"]
+  direction TD
+  node_session["Debate session<br/>[Courtroom.java]"]
+  node_cli_session["CLI session<br/>[CourtroomCLI.java]"]
+  node_transcript["Transcript and report<br/>[Courtroom.java]"]
+end
+
+node_user(("Debate user"))
+node_openrouter{{"OpenRouter API"}}
+node_ollama{{"Ollama service"}}
+node_web{{"Web search engines"}}
+
+node_user -->|"submits debate"| node_swing
+node_user -->|"enters debate"| node_cli
+node_swing -->|"starts debate"| node_orchestrator
+node_cli -->|"starts debate"| node_cli_orchestrator
+node_orchestrator -->|"clarifies stance"| node_stance
+node_orchestrator -->|"requests argument"| node_critic
+node_orchestrator -->|"requests argument"| node_defender
+node_orchestrator -->|"requests evaluation"| node_judge
+node_critic -.->|"queries evidence"| node_search
+node_defender -.->|"queries evidence"| node_search
+node_critic -->|"requests completion"| node_llm
+node_defender -->|"requests completion"| node_llm
+node_judge -->|"requests completion"| node_llm
+node_search -.->|"fetches results"| node_web
+node_llm -.->|"sends requests"| node_openrouter
+node_llm -->|"sends requests"| node_ollama
+node_orchestrator -->|"updates transcript and score"| node_session
+node_session -->|"exports report"| node_transcript
+node_swing -->|"renders and saves"| node_gui_output
+node_cli_orchestrator -->|"requests argument"| node_cli_critic
+node_cli_orchestrator -->|"requests argument"| node_cli_defender
+node_cli_orchestrator -->|"requests evaluation"| node_cli_judge
+node_cli_critic -->|"requests completion"| node_cli_llm
+node_cli_defender -->|"requests completion"| node_cli_llm
+node_cli_judge -->|"requests completion"| node_cli_llm
+node_cli_llm -->|"sends requests"| node_ollama
+node_cli_orchestrator -->|"updates transcript and score"| node_cli_session
 ```
 
 ## Debate Protocol
